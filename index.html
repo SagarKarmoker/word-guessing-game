@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Word Guessing Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-blue-100 flex justify-center items-center h-screen">
+
+    <div class="bg-white shadow-md rounded-lg p-6 text-center">
+        <h1 class="text-3xl font-bold text-green-600 mb-4">Climate Word Guessing Game</h1>
+        <div id="hint" class="text-lg text-gray-600 mb-4"></div>
+        <div id="wordDisplay" class="text-2xl font-mono text-gray-700 mb-4"></div>
+        <input type="text" id="inputField" placeholder="Guess a letter..." maxlength="1"
+            class="border border-gray-300 p-2 rounded-md text-lg mb-4" />
+        <button id="guessButton"
+            class="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition">Guess</button>
+        <div id="message" class="text-lg text-gray-700 mt-4"></div>
+        <button id="restartButton"
+            class="hidden bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition mt-4">Restart
+            Game</button>
+        <button id="surrenderButton"
+            class="hidden bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition mt-4">Surrender</button>
+    </div>
+
+    <script>
+        const words = [
+            { word: "climate", hint: "The long-term average of weather in a particular area." },
+            { word: "sustainability", hint: "Meeting our needs without compromising future generations." },
+            { word: "renewable", hint: "Energy sources that can be replenished naturally." },
+            { word: "biodiversity", hint: "The variety of life in the world or a particular habitat." },
+            { word: "ecosystem", hint: "A community of living organisms and their environment." },
+            { word: "pollution", hint: "The introduction of harmful substances into the environment." },
+            { word: "greenhouse", hint: "Gases that trap heat in the atmosphere." },
+            { word: "deforestation", hint: "The clearing of trees for agriculture or urban use." }
+        ];
+        let selectedWord, guessedLetters, correctLetters, wrongGuesses, maxGuesses;
+
+        function startGame() {
+            const selected = words[Math.floor(Math.random() * words.length)];
+            selectedWord = selected.word;
+            document.getElementById("hint").innerText = `Hint: ${selected.hint}`;
+            guessedLetters = [];
+            correctLetters = [];
+            wrongGuesses = 0;
+            maxGuesses = 6;
+            document.getElementById("wordDisplay").innerText = displayWord();
+            document.getElementById("inputField").value = "";
+            document.getElementById("message").innerText = "";
+            document.getElementById("restartButton").classList.add("hidden");
+            document.getElementById("surrenderButton").classList.remove("hidden");
+        }
+
+        function displayWord() {
+            return selectedWord.split("").map(letter => (correctLetters.includes(letter) ? letter : "_")).join(" ");
+        }
+
+        document.getElementById("guessButton").addEventListener("click", function () {
+            const inputField = document.getElementById("inputField");
+            const letter = inputField.value.toLowerCase();
+
+            if (letter && !guessedLetters.includes(letter)) {
+                guessedLetters.push(letter);
+                if (selectedWord.includes(letter)) {
+                    correctLetters.push(letter);
+                } else {
+                    wrongGuesses++;
+                }
+                inputField.value = "";
+                updateGame();
+            }
+        });
+
+        function updateGame() {
+            document.getElementById("wordDisplay").innerText = displayWord();
+            document.getElementById("message").innerText = `Wrong guesses: ${wrongGuesses}/${maxGuesses}`;
+            if (wrongGuesses >= maxGuesses) {
+                document.getElementById("message").innerText = `Game Over! The word was "${selectedWord}".`;
+                document.getElementById("restartButton").classList.remove("hidden");
+                document.getElementById("surrenderButton").classList.add("hidden");
+            } else if (correctLetters.length === new Set(selectedWord).size) {
+                document.getElementById("message").innerText = "Congratulations! You've guessed the word!";
+                document.getElementById("restartButton").classList.remove("hidden");
+                document.getElementById("surrenderButton").classList.add("hidden");
+            }
+        }
+
+        document.getElementById("restartButton").addEventListener("click", startGame);
+
+        document.getElementById("surrenderButton").addEventListener("click", function () {
+            document.getElementById("message").innerText = `You surrendered! The word was "${selectedWord}".`;
+            document.getElementById("restartButton").classList.remove("hidden");
+            document.getElementById("surrenderButton").classList.add("hidden");
+        });
+
+        // Start the game on page load
+        startGame();
+    </script>
+</body>
+
+</html>
